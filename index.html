@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colectivate — Panel Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --verde: #1DB954;
+    --verde-dim: rgba(29,185,84,0.12);
+    --verde-glow: rgba(29,185,84,0.3);
+    --negro: #080b0f;
+    --panel: #0d1117;
+    --card: #111820;
+    --card2: #161e28;
+    --borde: rgba(255,255,255,0.07);
+    --texto: #e8edf2;
+    --texto2: #6b7a8d;
+    --texto3: #3d4a57;
+    --rojo: #ff4757;
+    --amarillo: #ffc107;
+    --azul: #3b82f6;
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--negro);
+    color: var(--texto);
+    overflow-x: hidden;
+  }
+
+  /* LOGIN */
+  #loginScreen {
+    position: fixed;
+    inset: 0;
+    background: var(--negro);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .login-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .login-logo-icon {
+    width: 56px;
+    height: 56px;
+    background: var(--verde);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    box-shadow: 0 0 40px var(--verde-glow);
+  }
+
+  .login-logo h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: 22px;
+    color: var(--texto);
+    letter-spacing: -0.5px;
+  }
+
+  .login-logo p {
+    font-size: 13px;
+    color: var(--texto2);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .login-box {
+    background: var(--card);
+    border: 1px solid var(--borde);
+    border-radius: 16px;
+    padding: 36px;
+    width: 360px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .login-box input {
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    padding: 13px 16px;
+    color: var(--texto);
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .login-box input:focus { border-color: var(--verde); }
+
+  .login-box button {
+    background: var(--verde);
+    color: #000;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    border: none;
+    border-radius: 10px;
+    padding: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 4px;
+  }
+
+  .login-box button:hover { background: #25e067; transform: translateY(-1px); }
+
+  .login-error {
+    color: var(--rojo);
+    font-size: 13px;
+    text-align: center;
+    display: none;
+  }
+
+  /* LAYOUT */
+  #app { display: none; min-height: 100vh; }
+
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 220px;
+    background: var(--panel);
+    border-right: 1px solid var(--borde);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+  }
+
+  .sidebar-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--borde);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sidebar-logo-icon {
+    width: 34px;
+    height: 34px;
+    background: var(--verde);
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-logo span {
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--verde);
+  }
+
+  .sidebar-nav {
+    padding: 16px 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    color: var(--texto2);
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+
+  .nav-item:hover { background: var(--card); color: var(--texto); }
+
+  .nav-item.active {
+    background: var(--verde-dim);
+    color: var(--verde);
+  }
+
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  .sidebar-bottom {
+    padding: 16px 12px;
+    border-top: 1px solid var(--borde);
+  }
+
+  .logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    color: var(--texto3);
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+
+  .logout-btn:hover { color: var(--rojo); background: rgba(255,71,87,0.08); }
+
+  /* MAIN */
+  .main {
+    margin-left: 220px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .topbar {
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--borde);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--panel);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .topbar h2 {
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--texto);
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--verde-dim);
+    border: 1px solid rgba(29,185,84,0.2);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--verde);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--verde);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  .content { padding: 28px 32px; flex: 1; }
+
+  /* SECCIONES */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* MÉTRICAS */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .metric-card {
+    background: var(--card);
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .metric-card:hover { border-color: rgba(255,255,255,0.14); }
+
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent, var(--verde));
+    opacity: 0.6;
+  }
+
+  .metric-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--texto2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  .metric-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--texto);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .metric-sub {
+    font-size: 12px;
+    color: var(--texto2);
+  }
+
+  .metric-icon {
+    position: absolute;
+    top: 20px; right: 20px;
+    font-size: 20px;
+    opacity: 0.3;
+  }
+
+  /* TABLA */
+  .table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .table-header h3 {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--texto);
+  }
+
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    padding: 8px 14px;
+    width: 240px;
+  }
+
+  .search-box input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--texto);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    width: 100%;
+  }
+
+  .search-box svg { color: var(--texto2); flex-shrink: 0; width: 14px; height: 14px; }
+
+  .table-wrap {
+    background: var(--card);
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  thead tr {
+    border-bottom: 1px solid var(--borde);
+  }
+
+  thead th {
+    padding: 13px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--texto2);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-family: 'Space Mono', monospace;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--borde);
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--card2); }
+
+  tbody td {
+    padding: 13px 16px;
+    font-size: 13px;
+    color: var(--texto);
+    vertical-align: middle;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .badge-online { background: rgba(29,185,84,0.15); color: var(--verde); }
+  .badge-offline { background: rgba(107,122,141,0.15); color: var(--texto2); }
+  .badge-disponible { background: rgba(59,130,246,0.15); color: var(--azul); }
+  .badge-pasajero { background: rgba(255,193,7,0.12); color: var(--amarillo); }
+  .badge-conductor { background: rgba(29,185,84,0.12); color: var(--verde); }
+
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  .uid-cell {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--texto3);
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* NOTIFICACIONES */
+  .notif-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .notif-item {
+    background: var(--card);
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .notif-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .notif-icon.new { background: rgba(29,185,84,0.15); }
+  .notif-icon.online { background: rgba(59,130,246,0.15); }
+
+  .notif-text { flex: 1; }
+  .notif-text strong { font-size: 13.5px; font-weight: 600; display: block; margin-bottom: 2px; }
+  .notif-text span { font-size: 12px; color: var(--texto2); }
+  .notif-time { font-size: 11px; color: var(--texto3); font-family: 'Space Mono', monospace; white-space: nowrap; }
+
+  /* DETALLE USUARIO */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--borde);
+    border-radius: 18px;
+    padding: 28px;
+    width: 480px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .modal-header h3 {
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+  }
+
+  .modal-close {
+    width: 30px; height: 30px;
+    background: var(--card2);
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--texto2);
+    font-size: 16px;
+    transition: all 0.15s;
+  }
+
+  .modal-close:hover { color: var(--texto); background: var(--panel); }
+
+  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .field-item {
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    padding: 14px;
+  }
+
+  .field-item.full { grid-column: 1 / -1; }
+
+  .field-key {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--texto2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .field-val {
+    font-size: 13.5px;
+    color: var(--texto);
+    word-break: break-all;
+  }
+
+  /* LOADING */
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    color: var(--texto2);
+    font-size: 14px;
+    gap: 10px;
+  }
+
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid var(--borde);
+    border-top-color: var(--verde);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty {
+    text-align: center;
+    padding: 60px;
+    color: var(--texto2);
+    font-size: 14px;
+  }
+
+  /* MAPA placeholder */
+  .mapa-wrap {
+    background: var(--card);
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+    overflow: hidden;
+    height: 420px;
+    position: relative;
+  }
+
+  #mapContainer { width: 100%; height: 100%; }
+
+  .mapa-overlay {
+    position: absolute;
+    top: 16px; left: 16px;
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--texto2);
+    z-index: 10;
+  }
+
+  .mapa-overlay strong { color: var(--verde); font-family: 'Space Mono', monospace; font-size: 20px; display: block; }
+
+  /* FILTER TABS */
+  .filter-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .filter-tab {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--borde);
+    color: var(--texto2);
+    background: none;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+
+  .filter-tab:hover { border-color: var(--verde); color: var(--verde); }
+  .filter-tab.active { background: var(--verde-dim); border-color: rgba(29,185,84,0.3); color: var(--verde); }
+
+  .section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--texto2);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+
+  .panel-box {
+    background: var(--card);
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+    padding: 20px;
+  }
+
+  .panel-box h4 {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--texto2);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .scrollable { max-height: 260px; overflow-y: auto; }
+  .scrollable::-webkit-scrollbar { width: 4px; }
+  .scrollable::-webkit-scrollbar-track { background: transparent; }
+  .scrollable::-webkit-scrollbar-thumb { background: var(--borde); border-radius: 2px; }
+
+  .user-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--borde);
+    font-size: 13px;
+  }
+
+  .user-row:last-child { border-bottom: none; }
+  .user-email { color: var(--texto); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .user-meta { color: var(--texto2); font-size: 11px; font-family: 'Space Mono', monospace; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-logo">
+    <div class="login-logo-icon">🚌</div>
+    <h1>Colectivate</h1>
+    <p>Panel de Administración</p>
+  </div>
+  <div class="login-box">
+    <input type="email" id="loginEmail" placeholder="Email de administrador" />
+    <input type="password" id="loginPass" placeholder="Contraseña" />
+    <div class="login-error" id="loginError">Credenciales incorrectas</div>
+    <button onclick="doLogin()">Ingresar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">🚌</div>
+      <span>Colectivate</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="showSection('dashboard', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="showSection('usuarios', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        Usuarios
+      </div>
+      <div class="nav-item" onclick="showSection('mapa', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="11" r="3"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+        Mapa en vivo
+      </div>
+      <div class="nav-item" onclick="showSection('notificaciones', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Actividad
+        <span id="notifCount" style="margin-left:auto;background:var(--verde);color:#000;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;display:none;font-family:'Space Mono'"></span>
+      </div>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="logout-btn" onclick="doLogout()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Cerrar sesión
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <h2 id="pageTitle">Dashboard</h2>
+      <div class="topbar-right">
+        <div class="live-badge">
+          <div class="live-dot"></div>
+          TIEMPO REAL
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <section id="sec-dashboard" class="section active">
+        <div class="metrics-grid">
+          <div class="metric-card" style="--accent: var(--verde)">
+            <div class="metric-icon">👥</div>
+            <div class="metric-label">Total Usuarios</div>
+            <div class="metric-value" id="m-total">—</div>
+            <div class="metric-sub">registrados en Firestore</div>
+          </div>
+          <div class="metric-card" style="--accent: var(--azul)">
+            <div class="metric-icon">🟢</div>
+            <div class="metric-label">Online Ahora</div>
+            <div class="metric-value" id="m-online">—</div>
+            <div class="metric-sub">estado: online</div>
+          </div>
+          <div class="metric-card" style="--accent: var(--amarillo)">
+            <div class="metric-icon">📍</div>
+            <div class="metric-label">Disponibles</div>
+            <div class="metric-value" id="m-disponibles">—</div>
+            <div class="metric-sub">disponible: true</div>
+          </div>
+          <div class="metric-card" style="--accent: var(--rojo)">
+            <div class="metric-icon">🚌</div>
+            <div class="metric-label">Conductores</div>
+            <div class="metric-value" id="m-conductores">—</div>
+            <div class="metric-sub">rol: conductor</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="panel-box">
+            <h4>Online ahora</h4>
+            <div class="scrollable" id="onlineList"><div class="loading"><div class="spinner"></div> Cargando...</div></div>
+          </div>
+          <div class="panel-box">
+            <h4>Últimos registros</h4>
+            <div class="scrollable" id="recentList"><div class="loading"><div class="spinner"></div> Cargando...</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- USUARIOS -->
+      <section id="sec-usuarios" class="section">
+        <div class="table-header">
+          <h3>Todos los usuarios</h3>
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="searchInput" placeholder="Buscar por email o rol..." oninput="filterTable()" />
+          </div>
+        </div>
+        <div class="filter-tabs">
+          <button class="filter-tab active" onclick="setFilter('todos', this)">Todos</button>
+          <button class="filter-tab" onclick="setFilter('online', this)">Online</button>
+          <button class="filter-tab" onclick="setFilter('offline', this)">Offline</button>
+          <button class="filter-tab" onclick="setFilter('disponible', this)">Disponibles</button>
+          <button class="filter-tab" onclick="setFilter('conductor', this)">Conductores</button>
+          <button class="filter-tab" onclick="setFilter('pasajero', this)">Pasajeros</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Disponible</th>
+                <th>Último acceso</th>
+                <th>UID</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <tr><td colspan="6"><div class="loading"><div class="spinner"></div> Cargando usuarios...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- MAPA -->
+      <section id="sec-mapa" class="section">
+        <p class="section-title">Usuarios con ubicación activa</p>
+        <div class="mapa-wrap">
+          <div class="mapa-overlay">
+            <strong id="mapaCount">—</strong>
+            usuarios en el mapa
+          </div>
+          <div id="mapContainer"></div>
+        </div>
+        <p style="margin-top:12px;font-size:12px;color:var(--texto2)">🟢 Verde = disponible · ⚪ Gris = no disponible · 🔴 Rojo = offline</p>
+      </section>
+
+      <!-- ACTIVIDAD -->
+      <section id="sec-notificaciones" class="section">
+        <p class="section-title">Actividad reciente</p>
+        <div class="notif-list" id="activityList">
+          <div class="loading"><div class="spinner"></div> Escuchando eventos...</div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALLE USUARIO -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modalContent">
+    <div class="modal-header">
+      <h3>Detalle de usuario</h3>
+      <div class="modal-close" onclick="closeModalDirect()">✕</div>
+    </div>
+    <div class="field-grid" id="modalFields"></div>
+  </div>
+</div>
+
+<!-- FIREBASE SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+  import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyA73y1mSj8jaEjNl28S3ikdYfWmbJ3npyc",
+    authDomain: "mi-app-mapa-97e44.firebaseapp.com",
+    databaseURL: "https://mi-app-mapa-97e44-default-rtdb.firebaseio.com",
+    projectId: "mi-app-mapa-97e44",
+    storageBucket: "mi-app-mapa-97e44.firebasestorage.app",
+    messagingSenderId: "68766325238",
+    appId: "1:68766325238:web:47cc4495b24ad8dc1fcfd7",
+    measurementId: "G-2NH247FBLZ"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let allUsers = [];
+  let currentFilter = 'todos';
+  let activityLog = [];
+  let mapMarkers = [];
+  let leafletMap = null;
+  let knownUids = new Set();
+
+  // ─── AUTH ───
+  window.doLogin = async function() {
+    const email = document.getElementById('loginEmail').value;
+    const pass = document.getElementById('loginPass').value;
+    const errEl = document.getElementById('loginError');
+    errEl.style.display = 'none';
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch(e) {
+      errEl.style.display = 'block';
+      errEl.textContent = 'Credenciales incorrectas o sin acceso.';
+    }
+  };
+
+  window.doLogout = async function() {
+    await signOut(auth);
+  };
+
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+      startListening();
+    } else {
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('app').style.display = 'none';
+    }
+  });
+
+  // ─── FIRESTORE LISTENER ───
+  function startListening() {
+    const q = query(collection(db, 'usuarios'), orderBy('createdAt', 'desc'));
+
+    onSnapshot(q, snapshot => {
+      snapshot.docChanges().forEach(change => {
+        const data = { uid: change.doc.id, ...change.doc.data() };
+
+        if (change.type === 'added' && knownUids.size > 0) {
+          // Nuevo usuario registrado
+          addActivity('new', `Nuevo registro: ${data.email || data.uid}`, `Rol: ${data.rol || '—'}`);
+          updateNotifBadge();
+        }
+        if (change.type === 'modified') {
+          const prev = allUsers.find(u => u.uid === data.uid);
+          if (prev && prev.estado !== data.estado && data.estado === 'online') {
+            addActivity('online', `${data.email || data.uid} se conectó`, `Rol: ${data.rol || '—'}`);
+          }
+        }
+        knownUids.add(change.doc.id);
+      });
+
+      allUsers = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
+      updateDashboard();
+      updateTable();
+      updateMap();
+    });
+  }
+
+  // ─── DASHBOARD ───
+  function updateDashboard() {
+    const total = allUsers.length;
+    const online = allUsers.filter(u => u.estado === 'online').length;
+    const disponibles = allUsers.filter(u => u.disponible === true).length;
+    const conductores = allUsers.filter(u => u.rol === 'conductor').length;
+
+    document.getElementById('m-total').textContent = total;
+    document.getElementById('m-online').textContent = online;
+    document.getElementById('m-disponibles').textContent = disponibles;
+    document.getElementById('m-conductores').textContent = conductores;
+
+    // Online list
+    const onlineUsers = allUsers.filter(u => u.estado === 'online').slice(0, 10);
+    const onlineList = document.getElementById('onlineList');
+    if (onlineUsers.length === 0) {
+      onlineList.innerHTML = '<div class="empty">Ningún usuario online</div>';
+    } else {
+      onlineList.innerHTML = onlineUsers.map(u => `
+        <div class="user-row">
+          <span class="user-email">${u.email || '—'}</span>
+          <span class="badge badge-${u.rol === 'conductor' ? 'conductor' : 'pasajero'}">${u.rol || '—'}</span>
+        </div>`).join('');
+    }
+
+    // Recent list
+    const recent = [...allUsers].sort((a,b) => {
+      const ta = a.createdAt?.seconds || 0;
+      const tb = b.createdAt?.seconds || 0;
+      return tb - ta;
+    }).slice(0, 10);
+
+    const recentList = document.getElementById('recentList');
+    recentList.innerHTML = recent.map(u => `
+      <div class="user-row">
+        <span class="user-email">${u.email || '—'}</span>
+        <span class="user-meta">${formatDate(u.createdAt)}</span>
+      </div>`).join('');
+  }
+
+  // ─── TABLA ───
+  window.currentFilter = 'todos';
+
+  window.setFilter = function(filter, el) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    updateTable();
+  };
+
+  window.filterTable = function() { updateTable(); };
+
+  function updateTable() {
+    const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
+    let filtered = allUsers;
+
+    if (currentFilter === 'online') filtered = filtered.filter(u => u.estado === 'online');
+    else if (currentFilter === 'offline') filtered = filtered.filter(u => u.estado !== 'online');
+    else if (currentFilter === 'disponible') filtered = filtered.filter(u => u.disponible === true);
+    else if (currentFilter === 'conductor') filtered = filtered.filter(u => u.rol === 'conductor');
+    else if (currentFilter === 'pasajero') filtered = filtered.filter(u => u.rol === 'pasajero');
+
+    if (search) {
+      filtered = filtered.filter(u =>
+        (u.email || '').toLowerCase().includes(search) ||
+        (u.rol || '').toLowerCase().includes(search) ||
+        (u.estado || '').toLowerCase().includes(search)
+      );
+    }
+
+    const tbody = document.getElementById('usersTableBody');
+    if (filtered.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty">Sin resultados</div></td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(u => `
+      <tr onclick="openModal('${u.uid}')">
+        <td>${u.email || '—'}</td>
+        <td><span class="badge badge-${u.rol === 'conductor' ? 'conductor' : 'pasajero'}">${u.rol || '—'}</span></td>
+        <td>
+          <span class="badge badge-${u.estado === 'online' ? 'online' : 'offline'}">
+            <span class="dot"></span>${u.estado || 'offline'}
+          </span>
+        </td>
+        <td>
+          <span class="badge badge-${u.disponible ? 'disponible' : 'offline'}">
+            ${u.disponible ? '✓ sí' : '✗ no'}
+          </span>
+        </td>
+        <td style="color:var(--texto2);font-size:12px">${formatDate(u.ultimoAcceso)}</td>
+        <td class="uid-cell" title="${u.uid}">${u.uid}</td>
+      </tr>`).join('');
+  }
+
+  // ─── MAPA ───
+  function updateMap() {
+    const withLocation = allUsers.filter(u => u.lat && u.lng);
+    document.getElementById('mapaCount').textContent = withLocation.length;
+
+    if (!document.getElementById('sec-mapa').classList.contains('active')) return;
+    initMap(withLocation);
+  }
+
+  function initMap(users) {
+    if (!window.L) return;
+
+    if (!leafletMap) {
+      leafletMap = L.map('mapContainer').setView([-33.45, -70.67], 11);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap © CARTO'
+      }).addTo(leafletMap);
+    }
+
+    mapMarkers.forEach(m => m.remove());
+    mapMarkers = [];
+
+    users.forEach(u => {
+      const color = u.disponible ? '#1DB954' : u.estado === 'online' ? '#3b82f6' : '#6b7a8d';
+      const icon = L.divIcon({
+        className: '',
+        html: `<div style="width:12px;height:12px;background:${color};border-radius:50%;border:2px solid rgba(255,255,255,0.3);box-shadow:0 0 6px ${color}"></div>`,
+        iconSize: [12, 12]
+      });
+      const marker = L.marker([u.lat, u.lng], { icon })
+        .addTo(leafletMap)
+        .bindPopup(`<b>${u.email || u.uid}</b><br>Rol: ${u.rol || '—'}<br>Estado: ${u.estado || '—'}<br>Disponible: ${u.disponible ? 'Sí' : 'No'}`);
+      mapMarkers.push(marker);
+    });
+  }
+
+  // ─── ACTIVIDAD ───
+  function addActivity(type, title, sub) {
+    const time = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+    activityLog.unshift({ type, title, sub, time });
+    if (activityLog.length > 50) activityLog.pop();
+    renderActivity();
+  }
+
+  function renderActivity() {
+    const list = document.getElementById('activityList');
+    if (activityLog.length === 0) {
+      list.innerHTML = '<div class="empty">Sin actividad reciente. Los eventos aparecerán aquí en tiempo real.</div>';
+      return;
+    }
+    list.innerHTML = activityLog.map(a => `
+      <div class="notif-item">
+        <div class="notif-icon ${a.type}">${a.type === 'new' ? '🆕' : '🟢'}</div>
+        <div class="notif-text">
+          <strong>${a.title}</strong>
+          <span>${a.sub}</span>
+        </div>
+        <span class="notif-time">${a.time}</span>
+      </div>`).join('');
+  }
+
+  function updateNotifBadge() {
+    const badge = document.getElementById('notifCount');
+    const count = parseInt(badge.textContent || '0') + 1;
+    badge.textContent = count;
+    badge.style.display = 'inline';
+  }
+
+  // ─── MODAL ───
+  window.openModal = function(uid) {
+    const user = allUsers.find(u => u.uid === uid);
+    if (!user) return;
+
+    const fields = [
+      { key: 'UID', val: user.uid, full: true },
+      { key: 'Email', val: user.email || '—' },
+      { key: 'Rol', val: user.rol || '—' },
+      { key: 'Estado', val: user.estado || '—' },
+      { key: 'Disponible', val: user.disponible ? 'Sí' : 'No' },
+      { key: 'Latitud', val: user.lat ?? '—' },
+      { key: 'Longitud', val: user.lng ?? '—' },
+      { key: 'Creado', val: formatDate(user.createdAt), full: false },
+      { key: 'Último acceso', val: formatDate(user.ultimoAcceso) },
+      { key: 'Timestamp', val: formatDate(user.timestamp) },
+    ];
+
+    document.getElementById('modalFields').innerHTML = fields.map(f => `
+      <div class="field-item ${f.full ? 'full' : ''}">
+        <div class="field-key">${f.key}</div>
+        <div class="field-val">${f.val}</div>
+      </div>`).join('');
+
+    document.getElementById('modalOverlay').classList.add('open');
+  };
+
+  window.closeModal = function(e) {
+    if (e.target === document.getElementById('modalOverlay')) {
+      document.getElementById('modalOverlay').classList.remove('open');
+    }
+  };
+
+  window.closeModalDirect = function() {
+    document.getElementById('modalOverlay').classList.remove('open');
+  };
+
+  // ─── NAVEGACIÓN ───
+  window.showSection = function(id, el) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('sec-' + id).classList.add('active');
+    el.classList.add('active');
+
+    const titles = { dashboard: 'Dashboard', usuarios: 'Usuarios', mapa: 'Mapa en vivo', notificaciones: 'Actividad' };
+    document.getElementById('pageTitle').textContent = titles[id] || id;
+
+    if (id === 'notificaciones') {
+      document.getElementById('notifCount').style.display = 'none';
+      document.getElementById('notifCount').textContent = '0';
+      renderActivity();
+    }
+
+    if (id === 'mapa') {
+      setTimeout(() => {
+        const withLocation = allUsers.filter(u => u.lat && u.lng);
+        initMap(withLocation);
+        if (leafletMap) leafletMap.invalidateSize();
+      }, 100);
+    }
+  };
+
+  // ─── UTILS ───
+  function formatDate(ts) {
+    if (!ts) return '—';
+    try {
+      const d = ts.toDate ? ts.toDate() : new Date(ts.seconds * 1000);
+      return d.toLocaleString('es-CL', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+    } catch { return '—'; }
+  }
+
+  // Init activity
+  renderActivity();
+</script>
+
+<!-- LEAFLET para el mapa -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+</body>
+</html>
