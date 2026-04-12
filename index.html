@@ -438,6 +438,32 @@
   .badge-disponible { background: rgba(59,130,246,0.15); color: var(--azul); }
   .badge-pasajero { background: rgba(255,193,7,0.12); color: var(--amarillo); }
   .badge-conductor { background: rgba(29,185,84,0.12); color: var(--verde); }
+  .badge-bloqueado { background: rgba(255,71,87,0.15); color: var(--rojo); }
+
+  /* BOTÓN BLOQUEAR EN MODAL */
+  .btn-bloquear-modal {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+    border: 1px solid;
+  }
+  .btn-bloquear-modal.estado-bloqueado {
+    background: rgba(255,71,87,0.1);
+    color: var(--rojo);
+    border-color: rgba(255,71,87,0.3);
+  }
+  .btn-bloquear-modal.estado-bloqueado:hover { background: rgba(255,71,87,0.18); }
+  .btn-bloquear-modal.estado-libre {
+    background: rgba(255,71,87,0.05);
+    color: var(--rojo);
+    border-color: rgba(255,71,87,0.15);
+  }
+  .btn-bloquear-modal.estado-libre:hover { background: rgba(255,71,87,0.12); }
 
   .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
@@ -928,6 +954,7 @@
           <button class="filter-tab" onclick="setFilter('disponible', this)">Disponibles</button>
           <button class="filter-tab" onclick="setFilter('conductor', this)">Conductores</button>
           <button class="filter-tab" onclick="setFilter('pasajero', this)">Pasajeros</button>
+          <button class="filter-tab" onclick="setFilter('bloqueado', this)">🔒 Bloqueados</button>
         </div>
         <div class="table-wrap">
           <table>
@@ -985,6 +1012,11 @@
     </div>
     <div id="modalView">
       <div class="field-grid" id="modalFields"></div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--borde)">
+        <p style="font-size:11px;color:var(--texto2);margin-bottom:8px;font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:1px;">Acceso a la app</p>
+        <button id="bloquearBtn" onclick="toggleBloqueo()" class="btn-bloquear-modal estado-libre">🔒 Bloquear usuario</button>
+        <p style="font-size:11px;color:var(--texto3);margin-top:8px;">Al bloquear, la app cierra sesión del usuario automáticamente.</p>
+      </div>
     </div>
     <div id="modalEdit" style="display:none">
       <div style="display:flex;flex-direction:column;gap:12px" id="editFields"></div>
@@ -1165,6 +1197,7 @@
     else if (currentFilter === 'disponible') filtered = filtered.filter(u => u.disponible === true);
     else if (currentFilter === 'conductor') filtered = filtered.filter(u => u.rol === 'conductor');
     else if (currentFilter === 'pasajero') filtered = filtered.filter(u => u.rol === 'pasajero');
+    else if (currentFilter === 'bloqueado') filtered = filtered.filter(u => u.bloqueado === true);
 
     if (search) {
       filtered = filtered.filter(u =>
@@ -1182,7 +1215,7 @@
 
     tbody.innerHTML = filtered.map(u => `
       <tr onclick="openModal('${u.uid}')">
-        <td>${u.email || '—'}</td>
+        <td>${u.email || '—'}${u.bloqueado ? ' <span style="font-size:10px;background:rgba(255,71,87,0.15);color:var(--rojo);padding:2px 7px;border-radius:10px;font-weight:700;font-family:\'Space Mono\',monospace;">🔒</span>' : ''}</td>
         <td><span class="badge badge-${u.rol === 'conductor' ? 'conductor' : 'pasajero'}">${u.rol || '—'}</span></td>
         <td>
           <span class="badge badge-${u.estado === 'online' ? 'online' : 'offline'}">
@@ -1291,6 +1324,7 @@
       { key: 'Creado', val: formatDate(user.createdAt), full: false },
       { key: 'Último acceso', val: formatDate(user.ultimoAcceso) },
       { key: 'Timestamp', val: formatDate(user.timestamp) },
+      { key: 'Bloqueado', val: user.bloqueado ? '🔒 Sí — bloqueado' : '✓ No bloqueado', full: true },
     ];
 
     document.getElementById('modalFields').innerHTML = fields.map(f => `
@@ -1299,6 +1333,7 @@
         <div class="field-val">${f.val}</div>
       </div>`).join('');
 
+    renderBotonBloqueo(user.bloqueado === true);
     document.getElementById('modalOverlay').classList.add('open');
   };
 
@@ -1419,7 +1454,7 @@
       btn.textContent = 'Error al enviar';
     }
     setTimeout(() => {
-      btn.textContent = '������ Enviar email para restablecer contraseña';
+      btn.textContent = '������ Enviar email para restablecer contraseña';
       btn.disabled = false;
     }, 3000);
   };
@@ -1432,6 +1467,54 @@
 
   window.closeModalDirect = function() {
     document.getElementById('modalOverlay').classList.remove('open');
+  };
+
+  // ─── SISTEMA DE BLOQUEO ───
+  function renderBotonBloqueo(bloqueado) {
+    const btn = document.getElementById('bloquearBtn');
+    if (!btn) return;
+    if (bloqueado) {
+      btn.textContent = '🔓 Desbloquear usuario';
+      btn.classList.remove('estado-libre');
+      btn.classList.add('estado-bloqueado');
+    } else {
+      btn.textContent = '🔒 Bloquear usuario';
+      btn.classList.remove('estado-bloqueado');
+      btn.classList.add('estado-libre');
+    }
+  }
+
+  window.toggleBloqueo = async function() {
+    if (!currentEditUid) return;
+    const user = allUsers.find(u => u.uid === currentEditUid);
+    if (!user) return;
+
+    const actual = user.bloqueado === true;
+    const nuevo = !actual;
+    const accion = nuevo ? 'bloquear' : 'desbloquear';
+    const nombre = user.nombre || user.email || user.uid;
+
+    if (!confirm(`¿Deseas ${accion} a ${nombre}?${nuevo ? '\n\nLa app cerrará su sesión automáticamente.' : ''}`)) return;
+
+    const btn = document.getElementById('bloquearBtn');
+    btn.textContent = 'Aplicando...';
+    btn.disabled = true;
+
+    try {
+      await updateDoc(doc(db, 'usuarios', currentEditUid), { bloqueado: nuevo });
+      addActivity(
+        nuevo ? 'new' : 'online',
+        nuevo ? '🔒 Usuario bloqueado' : '🔓 Usuario desbloqueado',
+        nombre
+      );
+      updateNotifBadge();
+      renderBotonBloqueo(nuevo);
+    } catch(e) {
+      alert('Error al cambiar estado de bloqueo: ' + e.message);
+      renderBotonBloqueo(actual); // revertir visualmente
+    } finally {
+      btn.disabled = false;
+    }
   };
 
   // ─── NAVEGACIÓN ───
@@ -1476,5 +1559,4 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-</body>
-</html>
+</bo
