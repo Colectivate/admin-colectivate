@@ -977,18 +977,36 @@
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
   <div class="modal" id="modalContent">
     <div class="modal-header">
-      <h3>Detalle de usuario</h3>
-      <div class="modal-close" onclick="closeModalDirect()">✕</div>
+      <h3 id="modalTitle">Detalle de usuario</h3>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button id="editToggleBtn" onclick="toggleEditMode()" style="background:var(--verde-dim);border:1px solid rgba(29,185,84,0.3);color:var(--verde);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">✏️ Editar</button>
+        <div class="modal-close" onclick="closeModalDirect()">✕</div>
+      </div>
     </div>
-    <div class="field-grid" id="modalFields"></div>
+    <div id="modalView">
+      <div class="field-grid" id="modalFields"></div>
+    </div>
+    <div id="modalEdit" style="display:none">
+      <div style="display:flex;flex-direction:column;gap:12px" id="editFields"></div>
+      <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+        <button id="saveBtn" onclick="saveChanges()" style="flex:1;background:var(--verde);color:#000;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">Guardar cambios</button>
+        <button onclick="cancelEdit()" style="flex:1;background:var(--card2);color:var(--texto2);border:1px solid var(--borde);border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Cancelar</button>
+      </div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--borde)">
+        <p style="font-size:11px;color:var(--texto2);margin-bottom:8px;font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:1px;">Contraseña</p>
+        <p style="font-size:12px;color:var(--texto2);margin-bottom:12px;">Se enviará un email al usuario con un enlace para que restablezca su contraseña.</p>
+        <button id="resetBtn" onclick="resetPassword()" style="width:100%;background:rgba(255,71,87,0.1);color:var(--rojo);border:1px solid rgba(255,71,87,0.3);border-radius:10px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">🔑 Enviar email para restablecer contraseña</button>
+        <div id="resetMsg" style="display:none;margin-top:10px;text-align:center;font-size:13px;color:var(--verde)"></div>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- FIREBASE SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-  import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+  import { getFirestore, collection, onSnapshot, query, orderBy, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyA73y1mSj8jaEjNl28S3ikdYfWmbJ3npyc",
@@ -1250,9 +1268,14 @@
   }
 
   // ─── MODAL ───
+  let currentEditUid = null;
+
   window.openModal = function(uid) {
     const user = allUsers.find(u => u.uid === uid);
     if (!user) return;
+    currentEditUid = uid;
+
+    cancelEdit();
 
     const fields = [
       { key: 'UID', val: user.uid, full: true },
@@ -1274,6 +1297,110 @@
       </div>`).join('');
 
     document.getElementById('modalOverlay').classList.add('open');
+  };
+
+  window.toggleEditMode = function() {
+    const user = allUsers.find(u => u.uid === currentEditUid);
+    if (!user) return;
+    const isEditing = document.getElementById('modalEdit').style.display !== 'none';
+    if (isEditing) { cancelEdit(); return; }
+
+    document.getElementById('modalView').style.display = 'none';
+    document.getElementById('modalEdit').style.display = 'block';
+    document.getElementById('editToggleBtn').textContent = '✕ Cancelar';
+    document.getElementById('modalTitle').textContent = 'Editar usuario';
+    document.getElementById('resetMsg').style.display = 'none';
+
+    const inputStyle = "width:100%;background:var(--panel);border:1px solid var(--borde);border-radius:8px;padding:10px 12px;color:var(--texto);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box;";
+    const labelStyle = "font-size:11px;font-weight:600;color:var(--texto2);text-transform:uppercase;letter-spacing:1px;font-family:'Space Mono',monospace;display:block;margin-bottom:6px";
+
+    document.getElementById('editFields').innerHTML = `
+      <div>
+        <label style="${labelStyle}">Email</label>
+        <input id="ef-email" value="${user.email || ''}" style="${inputStyle}" onfocus="this.style.borderColor='var(--verde)'" onblur="this.style.borderColor='var(--borde)'" />
+      </div>
+      <div>
+        <label style="${labelStyle}">Rol</label>
+        <select id="ef-rol" style="${inputStyle}">
+          <option value="pasajero" ${user.rol === 'pasajero' ? 'selected' : ''}>Pasajero</option>
+          <option value="conductor" ${user.rol === 'conductor' ? 'selected' : ''}>Conductor</option>
+        </select>
+      </div>
+      <div>
+        <label style="${labelStyle}">Estado</label>
+        <select id="ef-estado" style="${inputStyle}">
+          <option value="online" ${user.estado === 'online' ? 'selected' : ''}>Online</option>
+          <option value="offline" ${user.estado !== 'online' ? 'selected' : ''}>Offline</option>
+        </select>
+      </div>
+      <div>
+        <label style="${labelStyle}">Disponible</label>
+        <select id="ef-disponible" style="${inputStyle}">
+          <option value="true" ${user.disponible ? 'selected' : ''}>Sí</option>
+          <option value="false" ${!user.disponible ? 'selected' : ''}>No</option>
+        </select>
+      </div>
+    `;
+  };
+
+  window.cancelEdit = function() {
+    document.getElementById('modalView').style.display = 'block';
+    document.getElementById('modalEdit').style.display = 'none';
+    document.getElementById('editToggleBtn').textContent = '✏️ Editar';
+    document.getElementById('modalTitle').textContent = 'Detalle de usuario';
+  };
+
+  window.saveChanges = async function() {
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.textContent = 'Guardando...';
+    saveBtn.disabled = true;
+    try {
+      await updateDoc(doc(db, 'usuarios', currentEditUid), {
+        email:      document.getElementById('ef-email').value.trim(),
+        rol:        document.getElementById('ef-rol').value,
+        estado:     document.getElementById('ef-estado').value,
+        disponible: document.getElementById('ef-disponible').value === 'true',
+      });
+      saveBtn.textContent = '✓ Guardado';
+      saveBtn.style.background = '#25e067';
+      setTimeout(() => {
+        saveBtn.textContent = 'Guardar cambios';
+        saveBtn.style.background = 'var(--verde)';
+        saveBtn.disabled = false;
+        cancelEdit();
+        window.openModal(currentEditUid);
+      }, 1200);
+    } catch(e) {
+      saveBtn.textContent = 'Error al guardar';
+      saveBtn.style.background = 'var(--rojo)';
+      saveBtn.style.color = '#fff';
+      saveBtn.disabled = false;
+      setTimeout(() => {
+        saveBtn.textContent = 'Guardar cambios';
+        saveBtn.style.background = 'var(--verde)';
+        saveBtn.style.color = '#000';
+      }, 2000);
+    }
+  };
+
+  window.resetPassword = async function() {
+    const user = allUsers.find(u => u.uid === currentEditUid);
+    if (!user?.email) return;
+    const btn = document.getElementById('resetBtn');
+    btn.textContent = 'Enviando...';
+    btn.disabled = true;
+    try {
+      await sendPasswordResetEmail(auth, user.email);
+      document.getElementById('resetMsg').style.display = 'block';
+      document.getElementById('resetMsg').textContent = '✓ Email enviado a ' + user.email;
+      btn.textContent = '✓ Enviado';
+    } catch(e) {
+      btn.textContent = 'Error al enviar';
+    }
+    setTimeout(() => {
+      btn.textContent = '������ Enviar email para restablecer contraseña';
+      btn.disabled = false;
+    }, 3000);
   };
 
   window.closeModal = function(e) {
