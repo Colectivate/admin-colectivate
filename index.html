@@ -687,6 +687,124 @@
   .user-row:last-child { border-bottom: none; }
   .user-email { color: var(--texto); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .user-meta { color: var(--texto2); font-size: 11px; font-family: 'Space Mono', monospace; }
+
+  /* ─── MOBILE RESPONSIVE ─── */
+  @media (max-width: 768px) {
+
+    /* Sidebar se convierte en barra inferior */
+    .sidebar {
+      top: auto;
+      left: 0; right: 0; bottom: 0;
+      width: 100%;
+      height: 60px;
+      flex-direction: row;
+      border-right: none;
+      border-top: 1px solid var(--borde);
+      z-index: 200;
+    }
+
+    .sidebar-logo { display: none; }
+    .sidebar-bottom { display: none; }
+
+    .sidebar-nav {
+      flex-direction: row;
+      padding: 0;
+      gap: 0;
+      width: 100%;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .nav-item {
+      flex-direction: column;
+      gap: 3px;
+      font-size: 10px;
+      padding: 8px 6px;
+      border-radius: 6px;
+      flex: 1;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .nav-item svg { width: 20px; height: 20px; }
+
+    #notifCount { margin-left: 0 !important; }
+
+    /* Main ocupa todo el ancho */
+    .main {
+      margin-left: 0;
+      margin-bottom: 60px;
+    }
+
+    .topbar {
+      padding: 14px 16px;
+    }
+
+    .content {
+      padding: 16px;
+    }
+
+    /* Métricas en 2 columnas */
+    .metrics-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .metric-value { font-size: 26px; }
+
+    /* Two col en una columna */
+    .two-col {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    /* Mapa ocupa toda la altura disponible */
+    .mapa-wrap {
+      height: calc(100vh - 200px);
+      border-radius: 10px;
+    }
+
+    /* Tabla scrollable horizontal */
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table { min-width: 600px; }
+
+    .table-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .search-box { width: 100%; }
+
+    .filter-tabs {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    /* Modal full width */
+    .modal {
+      width: calc(100% - 32px);
+      max-height: 85vh;
+      margin: 16px;
+    }
+
+    .field-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .field-item.full { grid-column: 1; }
+
+    /* Login box */
+    .login-box {
+      width: calc(100% - 48px);
+      padding: 24px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -1076,7 +1194,7 @@
     if (!window.L) return;
 
     if (!leafletMap) {
-      leafletMap = L.map('mapContainer').setView([-33.45, -70.67], 11);
+      leafletMap = L.map('mapContainer').setView([-33.0472, -71.6127], 13);
       L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: '© OpenStreetMap © CARTO'
       }).addTo(leafletMap);
