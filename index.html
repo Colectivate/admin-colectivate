@@ -1279,7 +1279,10 @@
 
     const fields = [
       { key: 'UID', val: user.uid, full: true },
+      { key: 'Nombre', val: user.nombre || '—' },
       { key: 'Email', val: user.email || '—' },
+      { key: 'Teléfono', val: user.telefono || '—' },
+      { key: 'Dirección', val: user.direccion || '—', full: true },
       { key: 'Rol', val: user.rol || '—' },
       { key: 'Estado', val: user.estado || '—' },
       { key: 'Disponible', val: user.disponible ? 'Sí' : 'No' },
@@ -1316,8 +1319,20 @@
 
     document.getElementById('editFields').innerHTML = `
       <div>
+        <label style="${labelStyle}">Nombre</label>
+        <input id="ef-nombre" value="${user.nombre || ''}" style="${inputStyle}" onfocus="this.style.borderColor='var(--verde)'" onblur="this.style.borderColor='var(--borde)'" />
+      </div>
+      <div>
         <label style="${labelStyle}">Email</label>
         <input id="ef-email" value="${user.email || ''}" style="${inputStyle}" onfocus="this.style.borderColor='var(--verde)'" onblur="this.style.borderColor='var(--borde)'" />
+      </div>
+      <div>
+        <label style="${labelStyle}">Teléfono</label>
+        <input id="ef-telefono" value="${user.telefono || ''}" style="${inputStyle}" onfocus="this.style.borderColor='var(--verde)'" onblur="this.style.borderColor='var(--borde)'" />
+      </div>
+      <div>
+        <label style="${labelStyle}">Dirección</label>
+        <input id="ef-direccion" value="${user.direccion || ''}" style="${inputStyle}" onfocus="this.style.borderColor='var(--verde)'" onblur="this.style.borderColor='var(--borde)'" />
       </div>
       <div>
         <label style="${labelStyle}">Rol</label>
@@ -1355,12 +1370,18 @@
     saveBtn.textContent = 'Guardando...';
     saveBtn.disabled = true;
     try {
-      await updateDoc(doc(db, 'usuarios', currentEditUid), {
+      const updates = {
+        nombre:     document.getElementById('ef-nombre').value.trim(),
         email:      document.getElementById('ef-email').value.trim(),
+        telefono:   document.getElementById('ef-telefono').value.trim(),
+        direccion:  document.getElementById('ef-direccion').value.trim(),
         rol:        document.getElementById('ef-rol').value,
         estado:     document.getElementById('ef-estado').value,
         disponible: document.getElementById('ef-disponible').value === 'true',
-      });
+      };
+      // Remove empty fields to avoid overwriting with empty strings
+      Object.keys(updates).forEach(k => { if (updates[k] === '') delete updates[k]; });
+      await updateDoc(doc(db, 'usuarios', currentEditUid), updates);
       saveBtn.textContent = '✓ Guardado';
       saveBtn.style.background = '#25e067';
       setTimeout(() => {
