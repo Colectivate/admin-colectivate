@@ -893,6 +893,9 @@
   let mapMarkers = [];
   let leafletMap = null;
   let knownUids = new Set();
+  let initialLoadDone = false;
+  let panelOpenTime = null;
+  let unsubscribeListener = null;
 
   // ─── AUTH ───
   window.doLogin = async function() {
@@ -909,6 +912,12 @@
   };
 
   window.doLogout = async function() {
+    if (unsubscribeListener) unsubscribeListener();
+    knownUids = new Set();
+    activityLog = [];
+    allUsers = [];
+    initialLoadDone = false;
+    panelOpenTime = null;
     await signOut(auth);
   };
 
@@ -916,6 +925,7 @@
     if (user) {
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('app').style.display = 'flex';
+      panelOpenTime = new Date();
       startListening();
     } else {
       document.getElementById('loginScreen').style.display = 'flex';
@@ -927,24 +937,30 @@
   function startListening() {
     const q = query(collection(db, 'usuarios'), orderBy('createdAt', 'desc'));
 
-    onSnapshot(q, snapshot => {
+    unsubscribeListener = onSnapshot(q, snapshot => {
       snapshot.docChanges().forEach(change => {
         const data = { uid: change.doc.id, ...change.doc.data() };
 
-        if (change.type === 'added' && knownUids.size > 0) {
-          // Nuevo usuario registrado
-          addActivity('new', `Nuevo registro: ${data.email || data.uid}`, `Rol: ${data.rol || '—'}`);
-          updateNotifBadge();
+        if (change.type === 'added') {
+          if (initialLoadDone) {
+            const createdAt = data.createdAt?.toDate ? data.createdAt.toDate() : null;
+            if (createdAt && createdAt > panelOpenTime) {
+              addActivity('new', `Nuevo registro: ${data.email || data.uid}`, `Rol: ${data.rol || '—'}`);
+              updateNotifBadge();
+            }
+          }
+          knownUids.add(change.doc.id);
         }
-        if (change.type === 'modified') {
+
+        if (change.type === 'modified' && initialLoadDone) {
           const prev = allUsers.find(u => u.uid === data.uid);
           if (prev && prev.estado !== data.estado && data.estado === 'online') {
             addActivity('online', `${data.email || data.uid} se conectó`, `Rol: ${data.rol || '—'}`);
           }
         }
-        knownUids.add(change.doc.id);
       });
 
+      initialLoadDone = true;
       allUsers = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
       updateDashboard();
       updateTable();
