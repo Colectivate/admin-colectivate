@@ -714,10 +714,207 @@
   .user-email { color: var(--texto); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .user-meta { color: var(--texto2); font-size: 11px; font-family: 'Space Mono', monospace; }
 
+  /* ─── SERVIDOR SECTION ─── */
+  .srv-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .srv-metrics-2 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .srv-card {
+    background: var(--card);
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .srv-card:hover { border-color: rgba(255,255,255,0.14); }
+
+  .srv-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--srv-accent, var(--azul));
+    opacity: 0.7;
+  }
+
+  .srv-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--texto2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .srv-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--texto);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .srv-sub {
+    font-size: 11px;
+    color: var(--texto3);
+  }
+
+  .srv-status-dot {
+    position: absolute;
+    top: 18px; right: 18px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--verde);
+    animation: pulse 1.5s infinite;
+  }
+
+  .srv-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .srv-panel {
+    background: var(--card);
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+    padding: 20px;
+  }
+
+  .srv-panel h4 {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--texto2);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .bar-row:last-child { margin-bottom: 0; }
+
+  .bar-label {
+    font-size: 12px;
+    color: var(--texto2);
+    width: 90px;
+    flex-shrink: 0;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 6px;
+    background: var(--panel);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+
+  .bar-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--texto);
+    width: 20px;
+    text-align: right;
+  }
+
+  .conexion-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--borde);
+  }
+
+  .conexion-row:last-child { border-bottom: none; }
+
+  .conexion-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-family: 'Space Mono', monospace;
+    flex-shrink: 0;
+  }
+
+  .cb-conductor { background: rgba(29,185,84,0.12); color: var(--verde); }
+  .cb-pasajero { background: rgba(255,193,7,0.12); color: var(--amarillo); }
+
+  .conexion-uid {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--texto3);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .conexion-hora {
+    font-size: 11px;
+    color: var(--texto3);
+    font-family: 'Space Mono', monospace;
+    flex-shrink: 0;
+  }
+
+  .srv-refresh-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--verde-dim);
+    border: 1px solid rgba(29,185,84,0.2);
+    border-radius: 8px;
+    padding: 6px 14px;
+    color: var(--verde);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+
+  .srv-refresh-btn:hover { background: rgba(29,185,84,0.2); }
+
+  .srv-error {
+    background: rgba(255,71,87,0.08);
+    border: 1px solid rgba(255,71,87,0.2);
+    border-radius: 10px;
+    padding: 16px 20px;
+    color: var(--rojo);
+    font-size: 13px;
+    display: none;
+  }
+
   /* ─── MOBILE RESPONSIVE ─── */
   @media (max-width: 768px) {
 
-    /* Sidebar se convierte en barra inferior */
     .sidebar {
       top: auto;
       left: 0; right: 0; bottom: 0;
@@ -756,21 +953,15 @@
 
     #notifCount { margin-left: 0 !important; }
 
-    /* Main ocupa todo el ancho */
     .main {
       margin-left: 0;
       margin-bottom: 60px;
     }
 
-    .topbar {
-      padding: 14px 16px;
-    }
+    .topbar { padding: 14px 16px; }
 
-    .content {
-      padding: 16px;
-    }
+    .content { padding: 16px; }
 
-    /* Métricas en 2 columnas */
     .metrics-grid {
       grid-template-columns: 1fr 1fr;
       gap: 10px;
@@ -779,19 +970,16 @@
 
     .metric-value { font-size: 26px; }
 
-    /* Two col en una columna */
     .two-col {
       grid-template-columns: 1fr;
       gap: 12px;
     }
 
-    /* Mapa ocupa toda la altura disponible */
     .mapa-wrap {
       height: calc(100vh - 200px);
       border-radius: 10px;
     }
 
-    /* Tabla scrollable horizontal */
     .table-wrap {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
@@ -807,29 +995,25 @@
 
     .search-box { width: 100%; }
 
-    .filter-tabs {
-      flex-wrap: wrap;
-      gap: 6px;
-    }
+    .filter-tabs { flex-wrap: wrap; gap: 6px; }
 
-    /* Modal full width */
     .modal {
       width: calc(100% - 32px);
       max-height: 85vh;
       margin: 16px;
     }
 
-    .field-grid {
-      grid-template-columns: 1fr;
-    }
-
+    .field-grid { grid-template-columns: 1fr; }
     .field-item.full { grid-column: 1; }
 
-    /* Login box */
     .login-box {
       width: calc(100% - 48px);
       padding: 24px;
     }
+
+    .srv-metrics { grid-template-columns: 1fr 1fr; }
+    .srv-metrics-2 { grid-template-columns: 1fr 1fr; }
+    .srv-two-col { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -874,6 +1058,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         Actividad
         <span id="notifCount" style="margin-left:auto;background:var(--verde);color:#000;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;display:none;font-family:'Space Mono'"></span>
+      </div>
+      <div class="nav-item" onclick="showSection('servidor', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="4" rx="1"/><rect x="2" y="10" width="20" height="4" rx="1"/><rect x="2" y="17" width="20" height="4" rx="1"/><circle cx="6" cy="5" r="0.5" fill="currentColor"/><circle cx="6" cy="12" r="0.5" fill="currentColor"/><circle cx="6" cy="19" r="0.5" fill="currentColor"/></svg>
+        Servidor
       </div>
     </nav>
     <div class="sidebar-bottom">
@@ -996,6 +1184,88 @@
         </div>
       </section>
 
+      <!-- SERVIDOR -->
+      <section id="sec-servidor" class="section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+          <div>
+            <p class="section-title" style="margin-bottom:4px;">Estado del servidor</p>
+            <p style="font-size:12px;color:var(--texto3);" id="srv-fecha">—</p>
+          </div>
+          <button class="srv-refresh-btn" onclick="fetchStats()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Actualizar
+          </button>
+        </div>
+
+        <div class="srv-error" id="srv-error">
+          No se pudo conectar al servidor en <code>62.238.2.104:3000</code>. Verifica que esté corriendo con <code>pm2 status</code>.
+        </div>
+
+        <div class="srv-metrics">
+          <div class="srv-card" style="--srv-accent: var(--verde)">
+            <div class="srv-status-dot" id="srv-dot"></div>
+            <div class="srv-label">Usuarios conectados</div>
+            <div class="srv-value" id="srv-usuarios">—</div>
+            <div class="srv-sub">sockets activos</div>
+          </div>
+          <div class="srv-card" style="--srv-accent: var(--azul)">
+            <div class="srv-label">Memoria usada</div>
+            <div class="srv-value" id="srv-mem">—</div>
+            <div class="srv-sub">RSS del proceso</div>
+          </div>
+          <div class="srv-card" style="--srv-accent: var(--amarillo)">
+            <div class="srv-label">Uptime</div>
+            <div class="srv-value" style="font-size:18px;padding-top:6px;" id="srv-uptime">—</div>
+            <div class="srv-sub">tiempo activo</div>
+          </div>
+          <div class="srv-card" style="--srv-accent: var(--texto2)">
+            <div class="srv-label">Total conexiones</div>
+            <div class="srv-value" id="srv-total">—</div>
+            <div class="srv-sub">históricas</div>
+          </div>
+        </div>
+
+        <div class="srv-metrics-2">
+          <div class="srv-card" style="--srv-accent: var(--verde)">
+            <div class="srv-label">Conductores</div>
+            <div class="srv-value" style="color:var(--verde)" id="srv-cond">—</div>
+            <div class="srv-sub">conectados ahora</div>
+          </div>
+          <div class="srv-card" style="--srv-accent: var(--amarillo)">
+            <div class="srv-label">Pasajeros</div>
+            <div class="srv-value" style="color:var(--amarillo)" id="srv-pas">—</div>
+            <div class="srv-sub">conectados ahora</div>
+          </div>
+          <div class="srv-card" style="--srv-accent: var(--azul)">
+            <div class="srv-label">Requests / min</div>
+            <div class="srv-value" id="srv-rpm">—</div>
+            <div class="srv-sub">límite: 100/min por IP</div>
+          </div>
+        </div>
+
+        <div class="srv-two-col">
+          <div class="srv-panel">
+            <h4>Distribución activa</h4>
+            <div class="bar-row">
+              <span class="bar-label">Conductores</span>
+              <div class="bar-track"><div class="bar-fill" id="bar-cond" style="width:0%;background:var(--verde)"></div></div>
+              <span class="bar-num" id="bn-cond">0</span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">Pasajeros</span>
+              <div class="bar-track"><div class="bar-fill" id="bar-pas" style="width:0%;background:var(--amarillo)"></div></div>
+              <span class="bar-num" id="bn-pas">0</span>
+            </div>
+          </div>
+          <div class="srv-panel">
+            <h4>Últimas conexiones</h4>
+            <div id="srv-conexiones">
+              <div class="loading" style="padding:20px"><div class="spinner"></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   </div>
 </div>
@@ -1064,6 +1334,7 @@
   let initialLoadDone = false;
   let panelOpenTime = null;
   let unsubscribeListener = null;
+  let statsInterval = null;
 
   // ─── AUTH ───
   window.doLogin = async function() {
@@ -1081,6 +1352,7 @@
 
   window.doLogout = async function() {
     if (unsubscribeListener) unsubscribeListener();
+    if (statsInterval) clearInterval(statsInterval);
     knownUids = new Set();
     activityLog = [];
     allUsers = [];
@@ -1095,6 +1367,8 @@
       document.getElementById('app').style.display = 'flex';
       panelOpenTime = new Date();
       startListening();
+      // Auto-refresh stats cada 30s
+      statsInterval = setInterval(fetchStats, 30000);
     } else {
       document.getElementById('loginScreen').style.display = 'flex';
       document.getElementById('app').style.display = 'none';
@@ -1148,7 +1422,6 @@
     document.getElementById('m-disponibles').textContent = disponibles;
     document.getElementById('m-conductores').textContent = conductores;
 
-    // Online list
     const onlineUsers = allUsers.filter(u => u.estado === 'online').slice(0, 10);
     const onlineList = document.getElementById('onlineList');
     if (onlineUsers.length === 0) {
@@ -1161,7 +1434,6 @@
         </div>`).join('');
     }
 
-    // Recent list
     const recent = [...allUsers].sort((a,b) => {
       const ta = a.createdAt?.seconds || 0;
       const tb = b.createdAt?.seconds || 0;
@@ -1300,6 +1572,75 @@
     badge.style.display = 'inline';
   }
 
+  // ─── SERVIDOR STATS ───
+  window.fetchStats = async function() {
+    const errEl = document.getElementById('srv-error');
+    try {
+      const r = await fetch('http://62.238.2.104:3000/stats');
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const d = await r.json();
+      errEl.style.display = 'none';
+
+      document.getElementById('srv-fecha').textContent = 'Actualizado: ' + d.fecha;
+      document.getElementById('srv-usuarios').textContent = d.usuariosConectados;
+      document.getElementById('srv-mem').textContent = d.memoria + ' MB';
+      document.getElementById('srv-uptime').textContent = d.uptime;
+      document.getElementById('srv-total').textContent = d.totalConexiones;
+      document.getElementById('srv-cond').textContent = d.conductores;
+      document.getElementById('srv-pas').textContent = d.pasajeros;
+      document.getElementById('srv-rpm').textContent = d.requestsUltimoMinuto;
+
+      const total = (d.conductores + d.pasajeros) || 1;
+      document.getElementById('bar-cond').style.width = Math.round(d.conductores / total * 100) + '%';
+      document.getElementById('bar-pas').style.width = Math.round(d.pasajeros / total * 100) + '%';
+      document.getElementById('bn-cond').textContent = d.conductores;
+      document.getElementById('bn-pas').textContent = d.pasajeros;
+
+      const conexiones = document.getElementById('srv-conexiones');
+      if (!d.ultimasConexiones || d.ultimasConexiones.length === 0) {
+        conexiones.innerHTML = '<div style="font-size:12px;color:var(--texto3);padding:8px 0">Sin conexiones recientes</div>';
+      } else {
+        conexiones.innerHTML = d.ultimasConexiones.map(u => `
+          <div class="conexion-row">
+            <span class="conexion-badge ${u.rol === 'conductor' ? 'cb-conductor' : 'cb-pasajero'}">${u.rol}</span>
+            <span class="conexion-uid">${u.uid}</span>
+            <span class="conexion-hora">${u.hora}</span>
+          </div>`).join('');
+      }
+    } catch(e) {
+      errEl.style.display = 'block';
+    }
+  };
+
+  // ─── NAVEGACIÓN ───
+  window.showSection = function(id, el) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('sec-' + id).classList.add('active');
+    el.classList.add('active');
+
+    const titles = { dashboard: 'Dashboard', usuarios: 'Usuarios', mapa: 'Mapa en vivo', notificaciones: 'Actividad', servidor: 'Servidor' };
+    document.getElementById('pageTitle').textContent = titles[id] || id;
+
+    if (id === 'notificaciones') {
+      document.getElementById('notifCount').style.display = 'none';
+      document.getElementById('notifCount').textContent = '0';
+      renderActivity();
+    }
+
+    if (id === 'mapa') {
+      setTimeout(() => {
+        const withLocation = allUsers.filter(u => u.lat && u.lng);
+        initMap(withLocation);
+        if (leafletMap) leafletMap.invalidateSize();
+      }, 100);
+    }
+
+    if (id === 'servidor') {
+      fetchStats();
+    }
+  };
+
   // ─── MODAL ───
   let currentEditUid = null;
 
@@ -1414,7 +1755,6 @@
         estado:     document.getElementById('ef-estado').value,
         disponible: document.getElementById('ef-disponible').value === 'true',
       };
-      // Remove empty fields to avoid overwriting with empty strings
       Object.keys(updates).forEach(k => { if (updates[k] === '') delete updates[k]; });
       await updateDoc(doc(db, 'usuarios', currentEditUid), updates);
       saveBtn.textContent = '✓ Guardado';
@@ -1454,7 +1794,7 @@
       btn.textContent = 'Error al enviar';
     }
     setTimeout(() => {
-      btn.textContent = '������ Enviar email para restablecer contraseña';
+      btn.textContent = '🔑 Enviar email para restablecer contraseña';
       btn.disabled = false;
     }, 3000);
   };
@@ -1511,34 +1851,9 @@
       renderBotonBloqueo(nuevo);
     } catch(e) {
       alert('Error al cambiar estado de bloqueo: ' + e.message);
-      renderBotonBloqueo(actual); // revertir visualmente
+      renderBotonBloqueo(actual);
     } finally {
       btn.disabled = false;
-    }
-  };
-
-  // ─── NAVEGACIÓN ───
-  window.showSection = function(id, el) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('sec-' + id).classList.add('active');
-    el.classList.add('active');
-
-    const titles = { dashboard: 'Dashboard', usuarios: 'Usuarios', mapa: 'Mapa en vivo', notificaciones: 'Actividad' };
-    document.getElementById('pageTitle').textContent = titles[id] || id;
-
-    if (id === 'notificaciones') {
-      document.getElementById('notifCount').style.display = 'none';
-      document.getElementById('notifCount').textContent = '0';
-      renderActivity();
-    }
-
-    if (id === 'mapa') {
-      setTimeout(() => {
-        const withLocation = allUsers.filter(u => u.lat && u.lng);
-        initMap(withLocation);
-        if (leafletMap) leafletMap.invalidateSize();
-      }, 100);
     }
   };
 
@@ -1551,7 +1866,6 @@
     } catch { return '—'; }
   }
 
-  // Init activity
   renderActivity();
 </script>
 
@@ -1559,4 +1873,5 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-</bo
+</body>
+</html>
